@@ -1,0 +1,17 @@
+name: ${project.name}
+version: ${project.version}
+main: com.bermudalocket.lastseen.LastSeen
+api-version: 1.13
+
+commands:
+  seen:
+    description: Retrieve the date and time a player was last seen.
+    usage: |
+
+      §e/<command> seen§f - Retrieve the date and time a player was last seen.
+
+  firstseen:
+    description: Retrieve the date and time a player first logged in to the server.
+    usage: |
+
+      §e/<command> firstseen§f - Retrieve the date and time a player first logged in to the server.
