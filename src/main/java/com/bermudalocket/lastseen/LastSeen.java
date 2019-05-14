@@ -12,10 +12,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.ocpsoft.prettytime.PrettyTime;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 // ------------------------------------------------------------------------
@@ -113,7 +116,9 @@ public class LastSeen extends JavaPlugin implements Listener, TabExecutor {
                     if (timestamp == null || timestamp == 0) {
                         msg(tellTo, "Either that player doesn't exist or they haven't been online in a while.");
                     } else {
-                        msg(tellTo, queriedPlayer + " was last seen on " + longToDate(timestamp));
+                        msg(tellTo, queriedPlayer + " was last seen on " + 
+                            longToDate(timestamp) + "(" +
+                            longToRelativeDate(timestamp) + ")");
                     }
                 });
     }
@@ -150,6 +155,19 @@ public class LastSeen extends JavaPlugin implements Listener, TabExecutor {
 
     // ------------------------------------------------------------------------
     /**
+     * Turns the given timestamp into a string describing the relative date
+     * in English to the current time now.
+     *
+     * @param time the timestamp.
+     * @return a string describing the relative date.
+     */
+    private static String longToRelativeDate(Long time) {
+        CALENDAR.setTimeInMillis(time);
+        return PRETTY_TIME_FORMAT.format(CALENDAR.getTime());
+    }
+
+    // ------------------------------------------------------------------------
+    /**
      * Returns the YAML key for the specified player.
      *
      * @param playerName the player's name.
@@ -176,9 +194,14 @@ public class LastSeen extends JavaPlugin implements Listener, TabExecutor {
     private static final Calendar CALENDAR = Calendar.getInstance();
 
     /**
-     * Date formatting object used for converting timestamps.
+     * SimpleDateFormat instance used to convert a timestamp to a date string.
      */
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("E MMM d y hh:mm:ss a");
+
+    /**
+     * PrettyTime instance used to convert a timestamp to a relative date string.
+     */
+    private static final PrettyTime PRETTY_TIME_FORMAT = new PrettyTime();
 
     /**
      * Persistent YAML storage.
