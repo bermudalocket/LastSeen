@@ -12,13 +12,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 // ------------------------------------------------------------------------
@@ -117,7 +117,7 @@ public class LastSeen extends JavaPlugin implements Listener, TabExecutor {
                         msg(tellTo, "Either that player doesn't exist or they haven't been online in a while.");
                     } else {
                         msg(tellTo, queriedPlayer + " was last seen on " + 
-                            longToDate(timestamp) + "(" +
+                            longToDate(timestamp) + " (" +
                             longToRelativeDate(timestamp) + ")");
                     }
                 });
@@ -163,7 +163,8 @@ public class LastSeen extends JavaPlugin implements Listener, TabExecutor {
      */
     private static String longToRelativeDate(Long time) {
         CALENDAR.setTimeInMillis(time);
-        return PRETTY_TIME_FORMAT.format(CALENDAR.getTime());
+        List<Duration> durations = PRETTY_TIME_FORMAT.calculatePreciseDuration(CALENDAR.getTime());
+        return PRETTY_TIME_FORMAT.format(durations);
     }
 
     // ------------------------------------------------------------------------
