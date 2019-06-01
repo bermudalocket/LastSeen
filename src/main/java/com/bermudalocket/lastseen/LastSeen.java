@@ -2,6 +2,7 @@ package com.bermudalocket.lastseen;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -14,6 +15,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 // ------------------------------------------------------------------------
 /**
@@ -66,31 +69,33 @@ public class LastSeen extends JavaPlugin implements Listener, TabExecutor {
      */
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (command.getName().equalsIgnoreCase("seen")) {
-            if (args.length == 1) {
-                String playerName = args[0];
-                Player player = Bukkit.getPlayer(playerName);
-                if (player != null && player.isOnline()) {
-                    msg(sender, player.getName() + " is online now!");
-                } else {
-                    tellLastSeen(sender, playerName);
-                }
-            } else {
-                msg(sender, "Usage: /seen <player-name>");
-            }
-        } else if (command.getName().equalsIgnoreCase("firstseen")) {
-            if (args.length == 1) {
-                String playerName = args[0];
-                Player player = Bukkit.getPlayer(playerName);
-                if (player != null && player.isOnline()) {
-                    msg(sender, player.getName() + " first played on " + longToDate(player.getFirstPlayed()));
-                } else {
-                    msg(sender, "The player must be online for us to figure that out.");
-                }
-            } else {
-                msg(sender, "Usage: /firstseen <player-name>");
-            }
+        String commandName = command.getName().toLowerCase();
+
+        if (args.length != 1) {
+            msg(sender, "Usage: /" + commandName + " <player-name>");
+            return true;
         }
+
+        String playerName = args[0];
+        OfflinePlayer player = (OfflinePlayer) Bukkit.getPlayer(playerName);
+        if (player == null) {
+            player = getOfflinePlayerByName(playerName);
+        }
+        if (player == null) {
+            msg(sender, playerName + " has never been seen before.");
+            return true;
+        }
+
+        if (commandName.equals("seen")) {
+            if (player.isOnline()) {
+                msg(sender, player.getName() + " is online now!");
+            } else {
+                tellLastSeen(sender, playerName);
+            }
+        } else if (commandName.equals("firstseen")) {
+            msg(sender, player.getName() + " first played on " + longToDate(player.getFirstPlayed()));
+        }
+
         return true;
     }
 
@@ -111,6 +116,23 @@ public class LastSeen extends JavaPlugin implements Listener, TabExecutor {
                         msg(tellTo, queriedPlayer + " was last seen on " + longToDate(timestamp));
                     }
                 });
+    }
+
+    // ------------------------------------------------------------------------
+    /**
+     * Returns an instance of OfflinePlayer if one can be found in the Bukkit
+     * list of offline players which matches the given playerName String.
+     * Otherwise, returns null.
+     *
+     * @see https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Bukkit.html#getOfflinePlayer-java.lang.String-
+     *
+     * @param playerName the name of the player being queried.
+     */
+    private OfflinePlayer getOfflinePlayerByName(String playerName) {
+        Optional<OfflinePlayer> maybePlayer = Stream.of(Bukkit.getOfflinePlayers​())
+                                                    .filter(p -> p.getName​().equals(playerName))
+                                                    .findFirst();
+        return maybePlayer.isPresent() ? maybePlayer.get() : null;
     }
 
     // ------------------------------------------------------------------------
