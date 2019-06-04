@@ -40,6 +40,7 @@ public class DataStorage<T> {
      * @param debug debug state.
      * @return (async) the data associated with the given key.
      */
+    @SuppressWarnings("unchecked")
     CompletableFuture<T> getData(String key, boolean debug) {
         if (debug) {
             return getDataDebug(key);
@@ -55,6 +56,7 @@ public class DataStorage<T> {
      * @param key the YAML key.
      * @return (async) the data associated with the given key.
      */
+    @SuppressWarnings("unchecked")
     CompletableFuture<T> getDataDebug(String key) {
         long start = System.currentTimeMillis();
         return CompletableFuture.supplyAsync(() -> {
